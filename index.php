@@ -1,18 +1,19 @@
 <?php
+function h($str)
+{
+return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
+}
+
 $questions = ['紫陽花', '百合', '薔薇', '秋桜', '水芭蕉', '石楠花', '蒲公英', '翌檜', '椿', '彼岸花', '酢橘', '白詰草', '鈴蘭', '鳳仙花', '薇', '百日紅', '千日紅', '山茶花', '阿列布', '薄荷', '蘆薈', '金木犀', '菫', '満天星', '虎杖', '万年青', '帚木', '蕨', '公孫樹', '木天蓼', '鬼灯', '大葉子', '椎茸', '湿地・占地', '木耳', '菖蒲', '雛罌粟', '独活', '枳殻', '蓬', '擬宝珠', '竜胆', '風信子', '柊', '燕子花', '椰子', '沙羅双樹', '紫苑', ' 含羞草', '紫蘇', '薊', '沈丁花', '仙人掌', '団栗', '朮', '木槿', '馬酔木', '梔子', '合歓木', '蕺草', '落葉松', '柘植', '咱夫藍', '山椒', '海松', '水雲', '勿忘草', '吾亦紅', '芹', '薺', '御形', '繁縷', '仏の座', '菘', '蘿蔔', '女郎花', '尾花', '桔梗', '撫子', '藤袴', '葛', '萩'];
 
-/**
- * Yahoo! JAPAN Web APIのご利用には、アプリケーションIDの登録が必要です。
- * あなたが登録したアプリケーションIDを $appid に設定してお使いください。
- * アプリケーションIDの登録URLは、こちらです↓
- * http://e.developer.yahoo.co.jp/webservices/register_application
- */
-$appid = ''; // <-- ここにあなたのアプリケーションIDを設定してください。
+$appid = 'dj00aiZpPXZoSk1ucVJUdE9seSZzPWNvbnN1bWVyc2VjcmV0Jng9YTY-'; // <-- ここにあなたのアプリケーションIDを設定してください。
 $url = 'http://jlp.yahooapis.jp/MAService/V1/parse?appid='.$appid.'&results=ma';
 $r = array_rand($questions);
 $url .= '&sentence='.urlencode($questions[$r]);
 $xml  = simplexml_load_file($url);
-$result = $xml->ma_result->word_list->word->reading;
+$arr[] = $questions[$r];
+$arr[] = $xml->ma_result->word_list->word->reading;
+
 ?>
 
 <!DOCTYPE html>
@@ -23,6 +24,15 @@ $result = $xml->ma_result->word_list->word->reading;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>植物の漢字クイズ</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-201852876-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'UA-201852876-1');
+    </script>
 </head>
 
 <body>
@@ -45,8 +55,10 @@ $result = $xml->ma_result->word_list->word->reading;
     <!-- End Yahoo! JAPAN Web Services Attribution Snippet -->
 
     <script type="text/javascript">
-    const question = "<?php echo $questions[$r];?>"; // 問題の漢字
-    const answer = "<?php echo $result;?>"; // 正解のひらがな
+    // PHPから問題の漢字と正解のひらがなをJSONで受け取る
+    const array = <?= json_encode($arr, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>; 
+    const question = array[0]; // 問題の漢字
+    const answer = array[1][0]; // 正解のひらがな
 
     const h1 = document.querySelector("h1");
     h1.textContent = "次の漢字をひらがなで入力してください";
